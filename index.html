@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>QR WIFI</title>
+    <title>wifi-qr.ohmybuck.com</title>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
@@ -15,16 +15,55 @@
       display: flex;
       justify-content: space-between;
     }
+
+    .qr-overlay {
+      position: absolute;
+      background: var(--pico-background-color);
+      border: 2px solid var(--pico-contrast-background);
+      border-radius: 0.25rem;
+      text-align: center;
+      padding: 0 0.25rem;
+    }
+
+    .qr-overlay__heading {
+      margin-bottom: 0.1rem;
+    }
+    .qr-overlay__body {
+      margin-bottom: 0rem;
+      font-size: smaller;
+    }
+
+    #qr-slot {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    @media print {
+      * {
+        visibility: hidden;
+        margin: 0;
+        padding: 0;
+      }
+
+      .print--hidden {
+        display: none;
+      }
+
+      .printable * {
+        visibility: visible;
+      }
+    }
   </style>
   <body>
     <main class="container">
       <div class="grid">
-        <div>
+        <article class="print--hidden">
           <hgroup>
             <h1>WIFI QR code generator</h1>
             <p>
-              Use it... don't use it... I just dont trust whats out there that
-              my details arent being logged.
+              Use it... don't use it... I just dont trust that what's available
+              isn't logging my details.
               <br />
             </p>
             <div class="space-between">
@@ -32,8 +71,8 @@
                 <a href="https://github.com/olmesm/wifi-qr">Source code</a>
               </div>
               <div>
-                <a href="https://github.com/olmesm/wifi-qr/issues"
-                  >Issues / Thanks</a
+                <a href="https://github.com/olmesm/wifi-qr/issues/new"
+                  >Comments & feedback</a
                 >
               </div>
             </div>
@@ -47,12 +86,7 @@
               </label>
               <label>
                 Password
-                <input
-                  type="password"
-                  name="wifipassword"
-                  placeholder="Wifi Password"
-                />
-                <small>We will never store or host your details</small>
+                <input name="wifipassword" placeholder="Wifi Password" />
               </label>
               <label>
                 Wifi type
@@ -86,15 +120,10 @@
                 Wifi detail overlay?
               </label>
             </fieldset>
-
-            <input type="submit" value="Generate!" />
           </form>
-        </div>
+        </article>
 
-        <div
-          style="display: flex; justify-content: center; align-items: center"
-          id="qr-slot"
-        ></div>
+        <div class="printable" id="qr-slot"></div>
       </div>
     </main>
     <script type="module" src="/src/main.ts"></script>

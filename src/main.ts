@@ -3,7 +3,13 @@ import h from "hyperscript";
 import { O, G, R, pipe } from "@mobily/ts-belt";
 import z from "zod";
 
+const EXCLUDE_KEY = "__X";
+
 const wifiType = ["WEP", "WPA", "nopass"] as const;
+
+type Entries<T> = {
+  [K in keyof T]: [K, T[K]];
+}[keyof T][];
 
 type WifiSchema = z.infer<typeof wifiSchema>;
 const wifiSchema = z.object({
@@ -13,8 +19,6 @@ const wifiSchema = z.object({
   hidden: z.literal("true").optional(),
   detailoverlay: z.literal("true").optional(),
 });
-
-const EXCLUDE_KEY = "__X";
 
 const parameters = {
   T: "Authentication type",
@@ -31,11 +35,9 @@ const paramSchemaMap: Record<keyof WifiSchema, keyof typeof parameters> = {
   wifipassword: "P",
   detailoverlay: "__X",
 };
-const safeString = (str: string): string => str.replace(/([\\;,":])/g, "$1");
 
-type Entries<T> = {
-  [K in keyof T]: [K, T[K]];
-}[keyof T][];
+const safeString = (str: string): string => str.replace(/([\\;,":])/g, "$1");
+const renderErrors = console.error;
 
 const parseSchemaToSpec = (wifiObj: WifiSchema): string => {
   const tup = Object.entries(wifiObj) as Entries<WifiSchema>;
@@ -61,13 +63,20 @@ const linkFormEvents = (
   const elForm = document.getElementById("wifi-details");
   if (!(elForm instanceof HTMLFormElement)) return;
 
-  elForm.onsubmit = (e: SubmitEvent) => {
-    e.preventDefault();
+  const handler = () => {
     const data = Object.fromEntries(new FormData(elForm));
 
     cb(data);
   };
+
+  elForm.onsubmit = (e: SubmitEvent) => {
+    e.preventDefault();
+  };
+
+  elForm.onchange = handler;
+  elForm.onkeyup = handler;
 };
+
 const parse = (d: unknown) => wifiSchema.parse(d);
 const generateQr = (data: WifiSchema) => parseSchemaToSpec(data);
 
@@ -81,14 +90,48 @@ const output = (wifiString: string) => {
     }
   );
 };
-const renderErrors = () => {};
+
+const createOverLay = (data: WifiSchema): Element =>
+  data.detailoverlay
+    ? h("div.qr-overlay", [
+        h("p.qr-overlay__heading", h("b", "WIFI")),
+        h("p.qr-overlay__body", data.ssid),
+        h("p.qr-overlay__body", data.wifipassword),
+      ])
+    : h("div");
+
+const createQrSlot = (): Element =>
+  h("img#qr", {
+    style: `
+      border-radius: 0.25rem;
+    `,
+  });
+
+const clearDom = (): Element => {
+  const elQrSlot = document.getElementById("qr-slot")!;
+  elQrSlot.innerHTML = "";
+
+  return elQrSlot;
+};
+
+const appendable =
+  (elChild: Element) =>
+  (elParent: Element): Element =>
+    elParent.appendChild(elChild);
+
+const setupQrSlot = (data: WifiSchema) =>
+  pipe(
+    O.fromExecution(clearDom),
+    O.tap(appendable(createOverLay(data))),
+    O.tap(appendable(createQrSlot()))
+  );
 
 const processFormData = (data: Record<string, unknown>): void =>
   void pipe(
     data,
     R.fromNullable("no form data"),
     R.map(parse),
-    R.tap(setupDom),
+    R.tap(setupQrSlot),
     R.map(generateQr),
     R.tap(output),
     R.tapError(renderErrors)
@@ -99,66 +142,3 @@ const main = () => {
 };
 
 main();
-
-const createOverLay = (data: WifiSchema) =>
-  data.detailoverlay
-    ? h(
-        "div",
-        {
-          style: `
-      position: absolute; 
-      background: var(--pico-background-color);
-      border: 2px solid var(--pico-contrast-background);
-      border-radius: .25rem;
-      text-align: center;
-      padding: 0 .25rem;
-      `,
-        },
-        [
-          h("p", { style: "margin-bottom: 0.1rem;" }, h("b", "WIFI")),
-          h(
-            "p",
-            {
-              style: `
-          margin-bottom: 0rem;
-          font-size: smaller;
-        `,
-            },
-            data.ssid
-          ),
-          h(
-            "p",
-            {
-              style: `
-          margin-bottom: 0rem;
-          font-size: smaller;
-        `,
-            },
-            data.wifipassword
-          ),
-        ]
-      )
-    : h("div");
-
-const createQrSlot = () =>
-  h("img", {
-    id: "qr",
-    style: `
-      border-radius: 0.25rem;
-    `,
-  });
-const clearDom = () => {
-  const elQrSlot = document.getElementById("qr-slot")!;
-  elQrSlot.innerHTML = "";
-
-  return elQrSlot;
-};
-const appendable = (elChild: HTMLElement) => (elParent: HTMLElement) =>
-  elParent.appendChild(elChild);
-
-const setupDom = (data: WifiSchema) =>
-  pipe(
-    O.fromExecution(clearDom),
-    O.tap(appendable(createOverLay(data))),
-    O.tap(appendable(createQrSlot()))
-  );
