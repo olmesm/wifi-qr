@@ -81,7 +81,7 @@ const parse = (d: unknown) => wifiSchema.parse(d);
 const generateQr = (data: WifiSchema) => parseSchemaToSpec(data);
 
 const output = (wifiString: string) => {
-  const elImg = document.getElementById("qr");
+  const elImg = document.querySelector("#qr-slot img");
   if (!(elImg instanceof HTMLImageElement)) return;
 
   QRCode.toDataURL(wifiString, { errorCorrectionLevel: "Q", width: 1024 }).then(
@@ -100,12 +100,7 @@ const createOverLay = (data: WifiSchema): Element =>
       ])
     : h("div");
 
-const createQrSlot = (): Element =>
-  h("img#qr", {
-    style: `
-      border-radius: 0.25rem;
-    `,
-  });
+const createQrSlot = (): Element => h("img");
 
 const clearDom = (): Element => {
   const elQrSlot = document.getElementById("qr-slot")!;
@@ -119,6 +114,7 @@ const appendable =
   (elParent: Element): Element =>
     elParent.appendChild(elChild);
 
+// TODO - this should be a few processes; map data to "slots", clear existing, apply "slots".
 const setupQrSlot = (data: WifiSchema) =>
   pipe(
     O.fromExecution(clearDom),
@@ -137,8 +133,6 @@ const processFormData = (data: Record<string, unknown>): void =>
     R.tapError(renderErrors)
   );
 
-const main = () => {
-  linkFormEvents(processFormData);
-};
+const main = () => linkFormEvents(processFormData);
 
 main();
