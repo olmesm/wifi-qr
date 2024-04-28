@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QR WIFI</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    />
+  </head>
+
+  <style>
+    .space-between {
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+  <body>
+    <main class="container">
+      <div class="grid">
+        <div>
+          <hgroup>
+            <h1>WIFI QR code generator</h1>
+            <p>
+              Use it... don't use it... I just dont trust whats out there that
+              my details arent being logged.
+              <br />
+              <div class="space-between">
+<div>
+
+  <a href="https://github.com/olmesm/wifi-qr">Source code</a>
+</div>
+<div>
+
+  <a href="https://github.com/olmesm/wifi-qr/issues">Issues / Thanks</a>
+</div>
+              </div>
+            </p>
+          </hgroup>
+          <hr />
+          <form id="wifi-details">
+            <fieldset>
+              <label>
+                SSID
+                <input _required name="ssid" placeholder="Wifi network Name" />
+              </label>
+              <label>
+                Password
+                <input
+                  type="password"
+                  name="wifipassword"
+                  placeholder="Wifi Password"
+                />
+                <small>We will never store or host your details</small>
+              </label>
+              <label>
+                Wifi type
+                <select
+                  name="type"
+                  aria-label="Select your Wifi type..."
+                  required
+                >
+                  <option selected>WPA</option>
+                  <option>WEP</option>
+                  <option>nopass</option>
+                </select>
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  name="hidden"
+                  role="switch"
+                  value="true"
+                />
+                Hidden Network?
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  name="detailoverlay"
+                  role="switch"
+                  value="true"
+                  checked
+                />
+                Wifi detail overlay?
+              </label>
+            </fieldset>
+
+            <input type="submit" value="Generate!" />
+          </form>
+        </div>
+
+        <div
+          style="display: flex; justify-content: center; align-items: center"
+          id="qr-slot"
+        ></div>
+      </div>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
