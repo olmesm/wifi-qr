@@ -8,7 +8,10 @@ Deployed to <https://wifi-qr.ohmybuck.com>
 
 ## Development
 
-```
-bun i
+```bash
+bun install
 bun dev
+
+# Deploy - locally only for now
+bun run deploy
 ```

@@ -33,7 +33,7 @@ const paramSchemaMap: Record<keyof WifiSchema, keyof typeof parameters> = {
   ssid: "S",
   hidden: "H",
   wifipassword: "P",
-  detailoverlay: "__X",
+  detailoverlay: EXCLUDE_KEY,
 };
 
 const safeString = (str: string): string => str.replace(/([\\;,":])/g, "$1");
